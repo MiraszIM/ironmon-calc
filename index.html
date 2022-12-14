@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IronMON Calc</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <div id="main" class="main">
+
+        <header class="header">
+            <h1>Ironmon Pivot Atk/SpAtk Calculator</h1>
+        </header>
+
+        <div class="general">
+            <label for"generation">Generation: </label>
+            <select id="generation">
+                <option value="1" disabled>Gen 1 (not implemented)</option>
+                <option value="2" disabled>Gen 2 (not implemented)</option>
+                <option value="3" disabled>Gen 3 (not implemented)</option>
+                <option value="4" selected>Gen 4</option>
+                <option value="5" disabled>Gen 5 (not implemented)</option>
+                <option value="6-plus" disabled>Gen 6+ (not implemented)</option>
+            </select>
+        </div>
+
+        <div class="data-inputs panel">
+            <div class="your-stats panel">
+                <label for="your-def">Your Def: </label>
+                <input type="text" class="your-def" id="your-def">
+                <label for="your-spdef">Your Sp. Def: </label>
+                <input type="text" class="your-spdef" id="your-spdef">
+            </div>
+            <div class="their-containers panel">
+                <div id="box1" class="their-box panel">
+                    
+                </div>
+            </div>
+        </div>
+
+        <div class="results panel">
+            <div id="res1" class="result-box panel">
+
+            </div>
+        </div>
+        
+    </div>
+
+    <template id="their-template">
+
+    </template>
+
+    <template id="result-template">
+
+    </template>
+
+    <script src="app.js"></script>
+    <noscript>You need to enable JavaScript to view the full site.</noscript>
+</body>
+</html>
