@@ -5,16 +5,18 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IronMON Calc</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link rel="stylesheet" href="main.css">
 </head>
 <body>
     <div id="main" class="main">
 
-        <header class="header">
+        <header class="text-center py-4">
             <h1>Ironmon Pivot Atk/SpAtk Calculator</h1>
+            <h5>BETA TEST (Sus Edition)</h5>
         </header>
 
-        <div class="general">
+        <div class="text-center py-3">
             <label for"generation">Generation: </label>
             <select id="generation">
                 <option value="1" disabled>Gen 1 (not implemented)</option>
@@ -26,23 +28,133 @@
             </select>
         </div>
 
-        <div class="data-inputs panel">
-            <div class="your-stats panel">
-                <label for="your-def">Your Def: </label>
-                <input type="text" class="your-def" id="your-def">
-                <label for="your-spdef">Your Sp. Def: </label>
-                <input type="text" class="your-spdef" id="your-spdef">
-            </div>
-            <div class="their-containers panel">
-                <div id="box1" class="their-box panel">
+        <div class="container">
+            <div class="row">
+
+                <div class="data-inputs col-6 mb-5">
+                    <div class="your-stats-header row">
+                        <h5 class="px-0">Your Stats:</h5>
+                    </div>
+                    <div class="your-stats-def row">
+                        <div class="col-2 pb-1 px-1">
+                            <span class="align-middle">Defense:</span>
+                        </div>
+                        <div class="col-1 pb-1 px-1">
+                            <input type="text" maxlength="3" size="3" class="text-white" id="your-def">
+                        </div>
+                    </div>
+                    <div class="your-stats-spdef row mb-3">
+                        <div class="col-2 pb-1 px-1">
+                            <span class="align-middle">Sp. Def:</span>
+                        </div>
+                        <div class="col-1 pb-1 px-1">
+                            <input type="text" maxlength="3" size="3" class="text-white" id="your-spdef">
+                        </div>
+                    </div>
                     
+                    <div class="their-stats-header row">
+                        <h5 class="px-0">Their Stats:</h5>
+                    </div>
+                    <div class="their-stats row mb-3">
+                        <div id="box1" class="their-box">
+                            <div class="level row">
+                                <div class="col-2 pb-1 px-1">
+                                    <span class="align-middle">Level:</span>
+                                </div>
+                                <div class="col pb-1 px-1">
+                                    <input type="text" maxlength="2" size="3" class="text-white" id="their-level-1">
+                                </div>
+                            </div>
+                            <div class="move-power row">
+                                <div class="col-2 pb-1 px-1">
+                                    <span class="align-middle">Move Power:</span>
+                                </div>
+                                <div class="col pb-1 px-1">
+                                    <input type="text" maxlength="3" size="3" class="text-white" id="their-power-1">
+                                </div>
+                            </div>
+                            <div class="modifier row">
+                                <div class="col-2 pb-1 px-1">
+                                    <span class="align-middle">Modifier:</span>
+                                </div>
+                                <div class="col pb-1 px-1">
+                                    <input type="text" maxlength="3" size="3" class="text-white" id="modifier-1">
+                                </div>
+                            </div>
+                            <div class="category row">
+                                <div class="col-2 pb-1 px-1 mb-1">
+                                    <span class="align-middle">Dmg Category:</span>
+                                </div>
+                                <div class="col-3 py-1 px-1 btn-group btn-group-sm" role="group">
+                                    <input type="radio" class="btn-check" name="btnradio" id="physical-radio" autocomplete="off" checked>
+                                    <label class="btn btn-outline-secondary btn-sm py-0 px-0" for="physical-radio">Physical</label>
+                                    <input type="radio" class="btn-check" name="btnradio" id="special-radio" autocomplete="off">
+                                    <label class="btn btn-outline-secondary btn-sm py-0 px-0" for="special-radio">Special</label>
+                                </div>
+
+                                <!-- RADIOS if the buttons are icky -->
+                                <!-- <div class="physical form-check col-2 pb-1 px-1">
+                                    <input class="form-check-input ms-0 me-2" type="radio" name="category-radio" id="physical-radio" checked>
+                                    <label class="form-check-label align-middle" for="physical-radio">
+                                        Physical
+                                    </label>
+                                </div>
+                                <div class="special form-check col-2 pb-1 px-1">
+                                    <input class="form-check-input ms-0 me-2" type="radio" name="category-radio" id="special-radio">
+                                    <label class="form-check-label align-middle" for="special-radio">
+                                        Special
+                                    </label>
+                                </div> -->
+                            </div>
+                            <div class="hp-taken row">
+                                <div class="col-2 pb-1 px-1">
+                                    <span class="align-middle">Dmg Done:</span>
+                                </div>
+                                <div class="col pb-1 px-1">
+                                    <input type="text" maxlength="3" size="3" class="text-white" id="their-dmg-1">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-dark">Apply</button>
                 </div>
-            </div>
-        </div>
 
-        <div class="results panel">
-            <div id="res1" class="result-box panel">
-
+                <div class="results col-6">
+                    <div id="res1" class="result-box">
+                        <div class="result-ranges-header">
+                            <h5 class="px-0">Result Ranges:</h5>
+                        </div>
+                        <div class="result-ranges">
+                            <table class="table table-dark">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Atk/SpAtk</th>
+                                        <th scope="col">Min</th>
+                                        <th scope="col">Max</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Current Range</th>
+                                        <td>10</td>
+                                        <td>20</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Possible Range</th>
+                                        <td>8</td>
+                                        <td>25</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Possible Base</th>
+                                        <td>50</td>
+                                        <td>150</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -57,6 +169,7 @@
     </template>
 
     <script src="app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
     <noscript>You need to enable JavaScript to view the full site.</noscript>
 </body>
 </html>
