@@ -19,7 +19,6 @@
         <div class="text-center py-3">
             <label for"generation">Generation: </label>
             <select id="generation">
-                <option value="1" disabled>Gen 1 (not implemented)</option>
                 <option value="2" disabled>Gen 2 (not implemented)</option>
                 <option value="3" disabled>Gen 3 (not implemented)</option>
                 <option value="4" selected>Gen 4</option>
@@ -79,23 +78,50 @@
                                     <input type="number" maxlength="3" size="3" min="0" max="999" class="text-white" id="their-power">
                                 </div>
                             </div>
-                            <div class="modifier row">
-                                <div class="col pb-1 px-1 text-end">
-                                    <span class="align-middle">Modifier:</span>
+                            <div class="effectiveness row">
+                                <div class="col pb-1 px-1 mb-1 text-end">
+                                    <span class="align-middle">Type Effectiveness:</span>
                                 </div>
-                                <div class="col-6 col-md-4 col-lg-3 col-xl-3 pb-1 px-1">
-                                    <input type="number" maxlength="3" size="3" min="0" max="999" class="text-white" id="modifier">
+                                <div class="col-6 col-md-4 col-lg-3 col-xl-3 py-1 px-1 btn-group btn-group-sm" role="group" data-toggle="buttons">
+                                    <input type="radio" class="btn-check" name="effectiveness-radios" id="doublyIneffective-radio" autocomplete="off">
+                                    <label class="btn btn-outline-secondary btn-sm py-0 px-0" for="doublyIneffective-radio">1/4</label>
+                                    <input type="radio" class="btn-check" name="effectiveness-radios" id="notVeryEffective-radio" autocomplete="off">
+                                    <label class="btn btn-outline-secondary btn-sm py-0 px-0" for="notVeryEffective-radio">1/2</label>
+                                    <input type="radio" class="btn-check" name="effectiveness-radios" id="neutral-radio" autocomplete="off" checked>
+                                    <label class="btn btn-outline-secondary btn-sm py-0 px-0" for="neutral-radio">1</label>
+                                    <input type="radio" class="btn-check" name="effectiveness-radios" id="veryEffective-radio" autocomplete="off">
+                                    <label class="btn btn-outline-secondary btn-sm py-0 px-0" for="veryEffective-radio">2</label>
+                                    <input type="radio" class="btn-check" name="effectiveness-radios" id="doublyEffective-radio" autocomplete="off">
+                                    <label class="btn btn-outline-secondary btn-sm py-0 px-0" for="doublyEffective-radio">4</label>
                                 </div>
                             </div>
                             <div class="category row">
                                 <div class="col pb-1 px-1 mb-1 text-end">
                                     <span class="align-middle">Dmg Category:</span>
                                 </div>
-                                <div class="col-6 col-md-4 col-lg-3 col-xl-3 py-1 px-1 btn-group btn-group-sm" role="group">
-                                    <input type="radio" class="btn-check" name="btnradio" id="physical-radio" autocomplete="off" checked>
+                                <div class="col-6 col-md-4 col-lg-3 col-xl-3 py-1 px-1 btn-group btn-group-sm" role="group" data-toggle="buttons">
+                                    <input type="radio" class="btn-check" name="category-radios" id="physical-radio" autocomplete="off" checked>
                                     <label class="btn btn-outline-secondary btn-sm py-0 px-0" for="physical-radio">Physical</label>
-                                    <input type="radio" class="btn-check" name="btnradio" id="special-radio" autocomplete="off">
+                                    <input type="radio" class="btn-check" name="category-radios" id="special-radio" autocomplete="off">
                                     <label class="btn btn-outline-secondary btn-sm py-0 px-0" for="special-radio">Special</label>
+                                </div>
+                            </div>
+                            <div class="stab row">
+                                <div class="col pb-1 px-1 mb-1 text-end">
+                                    <span class="align-middle">Is STAB:</span>
+                                </div>
+                                <div class="col-6 col-md-4 col-lg-3 col-xl-3 pb-1 px-1">
+                                    <input type="checkbox" class="my-1" id="isStab">
+                                    <label class="py-0 px-0" for="isStab"></label>
+                                </div>
+                            </div>
+                            <div class="critical row">
+                                <div class="col pb-1 px-1 mb-1 text-end">
+                                    <span class="align-middle">Is Critical:</span>
+                                </div>
+                                <div class="col-6 col-md-4 col-lg-3 col-xl-3 pb-1 px-1">
+                                    <input type="checkbox" class="my-1" id="isCritical">
+                                    <label class="py-0 px-0" for="isCritical"></label>
                                 </div>
                             </div>
                             <div class="hp-taken row">
