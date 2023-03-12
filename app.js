@@ -55,15 +55,16 @@ class Modifier {
 
     constructor() {}
 
-    getValue() {
-        let value = 1;
-        if (this.isSTAB) {
-            value *= 1.5;
-        }
-        if (this.isCritical) {
-            value *= 2;
-        }
-        return value * this.effectiveness.calculateValue();
+    getSTAB() {
+        return this.isSTAB ? 1.5 : 1;
+    }
+
+    getCritical() {
+        return this.isCritical ? 2 : 1;
+    }
+
+    getTypeEffectiveness() {
+        return this.effectiveness.calculateValue();
     }
 
 }
@@ -171,7 +172,7 @@ class Validator {
 
     validateTheirPower(inputs, errors) {
         if (!this.isNumberBetween(inputs.theirPower, 10, 500)) {
-            errors.push(wrongNumberMessage('Power', 10, 500));
+            errors.push(this.wrongNumberMessage('Power', 10, 500));
         }
     }
 
@@ -228,43 +229,132 @@ class Calculator {
         inputs.theirDamage = Number(inputs.theirDamage);
     }
 
-    calculateStats(values) {
+    calculateStats(inputs) {
+
+        let calculatedStats = new CalculatedStats();
+
+        let testedAValue = 1;
+        let lastLowerValue = 0;
+        let lastHigherValue = 1000;
+        let isRunning = true;
+        do {
+
+            let damageRange = this.calculateDamage(inputs, testedAValue);
+
+            if (damageRange.maxDamage < inputs.theirDamage) {
+                lastLowerValue = testedAValue;
+            } else if (damageRange.minDamage > inputs.theirDamage) {
+                lastHigherValue = testedAValue;
+                isRunning = false;
+            }
+
+            testedAValue += 10;
+
+        } while (isRunning);
+
+        testedAValue = lastLowerValue + 1;
+        isRunning = true;
+        do {
+            let damageRange = this.calculateDamage(inputs, testedAValue);
+            if (damageRange.maxDamage >= inputs.theirDamage) {
+                calculatedStats.aCurrentMin = testedAValue;
+                isRunning = false;
+            }
+            testedAValue += 1;
+        } while (isRunning);
+
+        testedAValue = lastHigherValue - 1;
+        isRunning = true;
+        do {
+            let damageRange = this.calculateDamage(inputs, testedAValue);
+            if (damageRange.minDamage <= inputs.theirDamage) {
+                calculatedStats.aCurrentMax = testedAValue;
+                isRunning = false;
+            }
+            testedAValue -= 1;
+        } while (isRunning);
+
+        calculatedStats.aBaseMin = (((calculatedStats.aCurrentMin / 1.1) - 5) * 100 / inputs.theirLevel - 31) / 2;
+        calculatedStats.aBaseMin = Math.ceil(calculatedStats.aBaseMin);
+        calculatedStats.aBaseMax = (((calculatedStats.aCurrentMax / 0.9) - 5) * 100 / inputs.theirLevel) / 2;
+        calculatedStats.aBaseMax = Math.floor(calculatedStats.aBaseMax);
+
+        calculatedStats.aPossibleMin = Math.max(1, Math.floor((((2 * calculatedStats.aBaseMin) * inputs.theirLevel / 100) + 5) * 0.9));
+        calculatedStats.aPossibleMax = Math.max(1, Math.floor((((2 * calculatedStats.aBaseMax + 31) * inputs.theirLevel / 100) + 5) * 1.1));
+
+        this.setCalculatedStatsIntoTable(calculatedStats);
+    }
+
+    setCalculatedStatsIntoTable(calculatedStats) {
+        document.getElementById('aCurrentMin').innerHTML = calculatedStats.aCurrentMin;
+        document.getElementById('aCurrentMax').innerHTML = calculatedStats.aCurrentMax;
+        document.getElementById('aBaseMin').innerHTML = calculatedStats.aBaseMin;
+        document.getElementById('aBaseMax').innerHTML = calculatedStats.aBaseMax;
+        document.getElementById('aPossibleMin').innerHTML = calculatedStats.aPossibleMin;
+        document.getElementById('aPossibleMax').innerHTML = calculatedStats.aPossibleMax;
+    }
+
+    calculateDamage(inputs, testedAValue) {
+
+        let damage = 2 * inputs.theirLevel / 5;
+        damage = Math.floor(damage);
         
-        let modifier = values.modifier.getValue();
+        damage += 2;
+        damage *= inputs.theirPower * testedAValue;
+        damage /= (inputs.isPhysicalCategory ? inputs.yourDef : inputs.yourSpDef);
+        damage = Math.floor(damage);
 
-        let d = values.isPhysicalCategory ? values.yourDef : values.yourSpDef;
-        let rs = 0.4 * values.theirLevel + 2;
-        rs *= values.theirPower;
-        rs = rs / (50 * d);
-        let dmgMax = values.theirDamage + 0.99999999;
-        let lsMin = values.theirDamage / modifier;
-        lsMin -= 2;
-        let lsMax = dmgMax / modifier;
-        lsMax /= 0.85;
-        lsMax -= 2;
+        damage /= 50;
+        damage = Math.floor(damage);
 
-        let aCurrentMin = Math.max(1, Math.floor(lsMin / rs));
-        let aCurrentMax = Math.max(1, Math.ceil(lsMax / rs));
+        damage += 2;
+        damage *= inputs.modifier.getCritical();
+        damage = Math.floor(damage);
+        
+        let minDamage = Math.floor(0.85 * damage);
+        let maxDamage = damage;
 
-        let aBaseMin = (((aCurrentMin / 1.1) - 5) * 100 / values.theirLevel - 31) / 2;
-        aBaseMin = Math.ceil(aBaseMin);
-        let aBaseMax = (((aCurrentMax / 0.9) - 5) * 100 / values.theirLevel) / 2;
-        aBaseMax = Math.floor(aBaseMax);
+        minDamage *= inputs.modifier.getSTAB();
+        maxDamage *= inputs.modifier.getSTAB();
 
-        let aPossibleMin = Math.max(1, Math.floor((((2 * aBaseMin) * values.theirLevel / 100) + 5) * 0.9));
-        let aPossibleMax = Math.max(1, Math.floor((((2 * aBaseMax + 31) * values.theirLevel / 100) + 5) * 1.1));
+        minDamage = Math.floor(minDamage);
+        maxDamage = Math.floor(maxDamage);
 
-        document.getElementById('aCurrentMin').innerHTML = aCurrentMin;
-        document.getElementById('aCurrentMax').innerHTML = aCurrentMax;
-        document.getElementById('aBaseMin').innerHTML = aBaseMin;
-        document.getElementById('aBaseMax').innerHTML = aBaseMax;
-        document.getElementById('aPossibleMin').innerHTML = aPossibleMin;
-        document.getElementById('aPossibleMax').innerHTML = aPossibleMax;
+        minDamage *= inputs.modifier.getTypeEffectiveness();
+        maxDamage *= inputs.modifier.getTypeEffectiveness();
+
+        minDamage = Math.floor(minDamage);
+        maxDamage = Math.floor(maxDamage);
+
+        return new DamageRange(minDamage, maxDamage);
     }
 
 }
 
-let applyButton = document.getElementById("apply-button");
-applyButton.addEventListener('click', event => {
+class DamageRange {
+
+    minDamage;
+    maxDamage;
+
+    constructor(minDamage, maxDamage) {
+        this.minDamage = minDamage;
+        this.maxDamage = maxDamage;
+    }
+}
+
+class CalculatedStats {
+
+    aCurrentMin;
+    aCurrentMax;
+    aBaseMin;
+    aBaseMax;
+    aPossibleMin;
+    aPossibleMax;
+
+    constructor() {}
+}
+
+let calculateButton = document.getElementById("calculate-button");
+calculateButton.addEventListener('click', event => {
     new Calculator().calculate();
 });
