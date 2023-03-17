@@ -81,6 +81,8 @@ class Inputs {
 
     modifier;
 
+    generation;
+
     constructor() {
         this.yourDef = 0;
         this.yourSpDef = 0;
@@ -89,6 +91,7 @@ class Inputs {
         this.isPhysicalCategory = true;
         this.theirDamage = 0;
         this.modifier = new Modifier();
+        this.generation = 0;
     }
 
     setYourDef(value) {
@@ -133,6 +136,11 @@ class Inputs {
 
     setIsCritical(value) {
         this.modifier.isCritical = value;
+        return this;
+    }
+
+    setGeneration(value) {
+        this.generation = value;
         return this;
     }
 
@@ -206,7 +214,8 @@ class Calculator {
             .setIsSTAB(UI.getCheckboxValue('isStab'))
             .setIsCritical(UI.getCheckboxValue('isCritical'))
             .setEffectiveness(Effectiveness.grabEffectiveness())
-            .setTheirDamage(UI.getInputValue('their-dmg'));
+            .setTheirDamage(UI.getInputValue('their-dmg'))
+            .setGeneration(UI.getInputValue('generation'));
 
         let errors = new Validator().validate(inputs);
 
@@ -227,62 +236,86 @@ class Calculator {
         inputs.theirLevel = Number(inputs.theirLevel);
         inputs.theirPower = Number(inputs.theirPower);
         inputs.theirDamage = Number(inputs.theirDamage);
+        inputs.generation = Number(inputs.generation);
     }
 
     calculateStats(inputs) {
 
         let calculatedStats = new CalculatedStats();
+        let searchedForValues = new SearchedForValues();
 
-        let testedAValue = 1;
-        let lastLowerValue = 0;
-        let lastHigherValue = 1000;
+        this.findBroadBoundaries(searchedForValues, inputs);
+        this.findMinimumValue(searchedForValues, inputs, calculatedStats);
+        this.findMaximumValue(searchedForValues, inputs, calculatedStats);
+        this.calculateExtraStats(inputs, calculatedStats);
+        this.setCalculatedStatsIntoTable(calculatedStats);
+    }
+
+    findBroadBoundaries(searchedForValues, inputs) {
+        searchedForValues.testedAValue = 1;
+        searchedForValues.lastLowerValue = 0;
+        searchedForValues.lastHigherValue = 1000;
         let isRunning = true;
         do {
 
-            let damageRange = this.calculateDamage(inputs, testedAValue);
+            let damageRange = this.calculateDamage(inputs, searchedForValues.testedAValue);
 
             if (damageRange.maxDamage < inputs.theirDamage) {
-                lastLowerValue = testedAValue;
+                searchedForValues.lastLowerValue = searchedForValues.testedAValue;
             } else if (damageRange.minDamage > inputs.theirDamage) {
-                lastHigherValue = testedAValue;
+                searchedForValues.lastHigherValue = searchedForValues.testedAValue;
                 isRunning = false;
             }
 
-            testedAValue += 10;
+            searchedForValues.testedAValue += 10;
 
         } while (isRunning);
+    }
 
-        testedAValue = lastLowerValue + 1;
-        isRunning = true;
+    findMinimumValue(searchedForValues, inputs, calculatedStats) {
+        searchedForValues.testedAValue = searchedForValues.lastLowerValue + 1;
+        let isRunning = true;
         do {
-            let damageRange = this.calculateDamage(inputs, testedAValue);
+            let damageRange = this.calculateDamage(inputs, searchedForValues.testedAValue);
             if (damageRange.maxDamage >= inputs.theirDamage) {
-                calculatedStats.aCurrentMin = testedAValue;
+                calculatedStats.aCurrentMin = searchedForValues.testedAValue;
                 isRunning = false;
             }
-            testedAValue += 1;
+            searchedForValues.testedAValue += 1;
         } while (isRunning);
+        calculatedStats.aCurrentMin = Math.max(1, calculatedStats.aCurrentMin);
+    }
 
-        testedAValue = lastHigherValue - 1;
-        isRunning = true;
+    findMaximumValue(searchedForValues, inputs, calculatedStats) {
+        searchedForValues.testedAValue = searchedForValues.lastHigherValue - 1;
+        let isRunning = true;
         do {
-            let damageRange = this.calculateDamage(inputs, testedAValue);
+            let damageRange = this.calculateDamage(inputs, searchedForValues.testedAValue);
             if (damageRange.minDamage <= inputs.theirDamage) {
-                calculatedStats.aCurrentMax = testedAValue;
+                calculatedStats.aCurrentMax = searchedForValues.testedAValue;
                 isRunning = false;
             }
-            testedAValue -= 1;
+            searchedForValues.testedAValue -= 1;
         } while (isRunning);
+        calculatedStats.aCurrentMax = Math.max(1, calculatedStats.aCurrentMax);
+    }
 
+    calculateExtraStats(inputs, calculatedStats) {
         calculatedStats.aBaseMin = (((calculatedStats.aCurrentMin / 1.1) - 5) * 100 / inputs.theirLevel - 31) / 2;
         calculatedStats.aBaseMin = Math.ceil(calculatedStats.aBaseMin);
+        calculatedStats.aBaseMin = Math.max(1, calculatedStats.aBaseMin);
+        calculatedStats.aBaseMin = Math.min(255, calculatedStats.aBaseMin);
+
         calculatedStats.aBaseMax = (((calculatedStats.aCurrentMax / 0.9) - 5) * 100 / inputs.theirLevel) / 2;
         calculatedStats.aBaseMax = Math.floor(calculatedStats.aBaseMax);
+        calculatedStats.aBaseMax = Math.max(1, calculatedStats.aBaseMax);
+        calculatedStats.aBaseMax = Math.min(255, calculatedStats.aBaseMax);
 
         calculatedStats.aPossibleMin = Math.max(1, Math.floor((((2 * calculatedStats.aBaseMin) * inputs.theirLevel / 100) + 5) * 0.9));
-        calculatedStats.aPossibleMax = Math.max(1, Math.floor((((2 * calculatedStats.aBaseMax + 31) * inputs.theirLevel / 100) + 5) * 1.1));
+        calculatedStats.aPossibleMin = Math.min(999, calculatedStats.aPossibleMin);
 
-        this.setCalculatedStatsIntoTable(calculatedStats);
+        calculatedStats.aPossibleMax = Math.max(1, Math.floor((((2 * calculatedStats.aBaseMax + 31) * inputs.theirLevel / 100) + 5) * 1.1));
+        calculatedStats.aPossibleMax = Math.min(999, calculatedStats.aPossibleMax);
     }
 
     setCalculatedStatsIntoTable(calculatedStats) {
@@ -295,6 +328,9 @@ class Calculator {
     }
 
     calculateDamage(inputs, testedAValue) {
+
+        let minDamage;
+        let maxDamage;
 
         let damage = 2 * inputs.theirLevel / 5;
         damage = Math.floor(damage);
@@ -311,21 +347,36 @@ class Calculator {
         damage *= inputs.modifier.getCritical();
         damage = Math.floor(damage);
         
-        let minDamage = Math.floor(0.85 * damage);
-        let maxDamage = damage;
+        if (inputs.generation === 3) {
 
-        minDamage *= inputs.modifier.getSTAB();
-        maxDamage *= inputs.modifier.getSTAB();
+            damage *= inputs.modifier.getSTAB();
+            damage = Math.floor(damage);
 
-        minDamage = Math.floor(minDamage);
-        maxDamage = Math.floor(maxDamage);
+            damage *= inputs.modifier.getTypeEffectiveness();
+            damage = Math.floor(damage);
 
-        minDamage *= inputs.modifier.getTypeEffectiveness();
-        maxDamage *= inputs.modifier.getTypeEffectiveness();
+            minDamage = Math.floor(0.85 * damage);
+            maxDamage = damage;
+            
+        } else if (inputs.generation === 4) {
 
-        minDamage = Math.floor(minDamage);
-        maxDamage = Math.floor(maxDamage);
+            minDamage = Math.floor(0.85 * damage);
+            maxDamage = damage;
 
+            minDamage *= inputs.modifier.getSTAB();
+            maxDamage *= inputs.modifier.getSTAB();
+
+            minDamage = Math.floor(minDamage);
+            maxDamage = Math.floor(maxDamage);
+
+            minDamage *= inputs.modifier.getTypeEffectiveness();
+            maxDamage *= inputs.modifier.getTypeEffectiveness();
+
+            minDamage = Math.floor(minDamage);
+            maxDamage = Math.floor(maxDamage);
+            
+        }
+        
         return new DamageRange(minDamage, maxDamage);
     }
 
@@ -350,6 +401,15 @@ class CalculatedStats {
     aBaseMax;
     aPossibleMin;
     aPossibleMax;
+
+    constructor() {}
+}
+
+class SearchedForValues {
+
+    testedAValue;
+    lastLowerValue;
+    lastHigherValue;
 
     constructor() {}
 }
