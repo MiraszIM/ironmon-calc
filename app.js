@@ -329,61 +329,133 @@ class Calculator {
 
     calculateDamage(inputs, testedAValue) {
 
-        let minDamage;
-        let maxDamage;
+        let range = new DamageRange();
 
-        let damage = 2 * inputs.theirLevel / 5;
-        damage = Math.floor(damage);
-        
-        damage += 2;
-        damage *= inputs.theirPower * testedAValue;
-        damage /= (inputs.isPhysicalCategory ? inputs.yourDef : inputs.yourSpDef);
-        damage = Math.floor(damage);
+        this.calculateInitialBaseDamage(range, inputs, testedAValue);
 
-        damage /= 50;
-        damage = Math.floor(damage);
-
-        damage += 2;
-        damage *= inputs.modifier.getCritical();
-        damage = Math.floor(damage);
-        
-        if (inputs.generation === 3) {
-
-            damage *= inputs.modifier.getSTAB();
-            damage = Math.floor(damage);
-
-            damage *= inputs.modifier.getTypeEffectiveness();
-            damage = Math.floor(damage);
-
-            minDamage = Math.floor(0.85 * damage);
-            maxDamage = damage;
-            
-        } else if (inputs.generation === 4) {
-
-            minDamage = Math.floor(0.85 * damage);
-            maxDamage = damage;
-
-            minDamage *= inputs.modifier.getSTAB();
-            maxDamage *= inputs.modifier.getSTAB();
-
-            minDamage = Math.floor(minDamage);
-            maxDamage = Math.floor(maxDamage);
-
-            minDamage *= inputs.modifier.getTypeEffectiveness();
-            maxDamage *= inputs.modifier.getTypeEffectiveness();
-
-            minDamage = Math.floor(minDamage);
-            maxDamage = Math.floor(maxDamage);
-            
+        switch (inputs.generation) {
+            case 2:
+                this.applyGen2Calculations(range, inputs);
+                break;
+            case 3:
+                this.applyGen3Calculations(range, inputs);
+                break;
+            case 4:
+                this.applyGen4Calculations(range, inputs);
+                break;
+            case 5:
+                this.applyGen5Calculations(range, inputs);
+                break;
+            case 6:
+                this.applyGen6Calculations(range, inputs);
+                break;
         }
         
-        return new DamageRange(minDamage, maxDamage);
+        return range;
+    }
+
+    calculateInitialBaseDamage(range, inputs, testedAValue) {
+        range.damage = 2 * inputs.theirLevel / 5;
+        range.damage = Math.floor(range.damage);
+        
+        range.damage += 2;
+        range.damage *= inputs.theirPower * testedAValue;
+        range.damage /= (inputs.isPhysicalCategory ? inputs.yourDef : inputs.yourSpDef);
+        range.damage = Math.floor(range.damage);
+
+        range.damage /= 50;
+        range.damage = Math.floor(range.damage);
+    }
+
+    applyGen2Calculations(range, inputs) {
+        // TODO
+    }
+
+    applyGen3Calculations(range, inputs) {
+        range.damage = this.addTwo(range.damage);
+        range.damage = this.applyCriticalTruncate(range.damage, inputs);
+        range.damage = this.applySTABTruncate(range.damage, inputs);
+        range.damage = this.applyTypeTruncate(range.damage, inputs);
+        this.applyRandomTruncate(range);
+    }
+
+    applyGen4Calculations(range, inputs) {
+        range.damage = this.addTwo(range.damage);
+        range.damage = this.applyCriticalTruncate(range.damage, inputs);
+        this.applyRandomTruncate(range);
+        range.minDamage = this.applySTABTruncate(range.minDamage, inputs);
+        range.maxDamage = this.applySTABTruncate(range.maxDamage, inputs);
+        range.minDamage = this.applyTypeTruncate(range.minDamage, inputs);
+        range.maxDamage = this.applyTypeTruncate(range.maxDamage, inputs);
+    }
+
+    applyGen5Calculations(range, inputs) {
+        // TODO
+    }
+
+    applyGen6Calculations(range, inputs) {
+        // TODO
+    }
+
+    addTwo(damage) {
+        return damage + 2;
+    }
+
+    applyCriticalTruncate(damage, inputs) {
+        damage *= inputs.modifier.getCritical();
+        damage = Math.floor(damage);
+        return damage;
+    }
+
+    applyCriticalGen5(damage, inputs) {
+        damage *= inputs.modifier.getCritical();
+        damage = Math.round(damage);
+        return damage;
+    }
+
+    applyRandomTruncate(range) {
+        range.minDamage = Math.floor(0.85 * range.damage);
+        range.maxDamage = range.damage;
+    }
+
+    applyRandomRoundHalfDown(range) {
+        range.minDamage = this.roundHalfDown(0.85 * range.damage);
+        range.maxDamage = range.damage;
+    }
+
+    applySTABTruncate(damage, inputs) {
+        damage *= inputs.modifier.getSTAB();
+        damage = Math.floor(damage);
+        return damage;
+    }
+
+    applySTABRoundHalfDown(damage, inputs) {
+        damage *= inputs.modifier.getSTAB();
+        damage = this.roundHalfDown(damage);
+        return damage;
+    }
+
+    applyTypeTruncate(damage, inputs) {
+        damage *= inputs.modifier.getTypeEffectiveness();
+        damage = Math.floor(damage);
+        return damage;
+    }
+
+    applyTypeRoundHalfDown(damage, inputs) {
+        damage *= inputs.modifier.getTypeEffectiveness();
+        damage = this.roundHalfDown(damage);
+        return damage;
+    }
+
+    roundHalfDown(value) {
+        return -Math.round(-value);
     }
 
 }
 
 class DamageRange {
 
+    damage; // before random
     minDamage;
     maxDamage;
 
