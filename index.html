@@ -13,24 +13,24 @@
 
         <header class="text-center py-4">
             <h1>Ironmon Pivot Atk/SpAtk Calculator</h1>
-            <h5>BETA v0.1</h5>
+            <h5>BETA v0.1.1</h5>
         </header>
 
         <div class="text-center py-3">
             <label for"generation">Generation: </label>
             <select id="generation">
-                <option value="2" disabled>Gen 2 (not implemented)</option>
+                <option value="2">Gen 2</option>
                 <option value="3">Gen 3</option>
                 <option value="4" selected>Gen 4</option>
-                <option value="5" disabled>Gen 5 (not implemented)</option>
-                <option value="6" disabled>Gen 6+ (not implemented)</option>
+                <option value="5">Gen 5</option>
+                <option value="6">Gen 6+</option>
             </select>
         </div>
 
         <div class="container">
             <div class="row">
 
-                <div class="data-inputs col-6 mb-5">
+                <div class="data-inputs col-6 mb-4">
                     <div class="your-stats-header row">
                         <div class="col"></div>
                         <div class="col-12 col-md-9 col-lg-6 col-xl-6 text-center">
@@ -147,33 +147,37 @@
                 <div class="results col-6">
                     <div id="res1" class="result-box">
                         <div class="result-ranges-header">
-                            <h5 class="px-0">Result Ranges:</h5>
+                            <h5 class="px-0">Atk/SpAtk Result Ranges:</h5>
                         </div>
                         <div class="result-ranges row">
                             <div class="col-12 col-md-9 col-lg-8 col-xl-6">
                                 <table class="table table-dark table-sm">
                                     <thead>
                                         <tr>
-                                            <th scope="col">Atk/SpAtk</th>
                                             <th scope="col">Min</th>
+                                            <th scope="col"></th>
                                             <th scope="col">Max</th>
+                                            <th scope="col"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <th scope="row">Current Range</th>
-                                            <td id="aCurrentMin">???</td>
-                                            <td id="aCurrentMax">???</td>
+                                            <td id="aCurrentMin" class="yellow-text"></td>
+                                            <td>-</td>
+                                            <td id="aCurrentMax" class="yellow-text right-align"></td>
+                                            <td class="yellow-text smaller-text">Current encounter stat at the specified level</td>
                                         </tr>
                                         <tr>
-                                            <th scope="row">Current Base</th>
-                                            <td id="aBaseMin">???</td>
-                                            <td id="aBaseMax">???</td>
+                                            <td id="aBaseMin"></td>
+                                            <td>-</td>
+                                            <td id="aBaseMax" class="right-align"></td>
+                                            <td class="smaller-text">Current encounter predicted base stat</td>
                                         </tr>
                                         <tr>
-                                            <th scope="row">Possible Range</th>
-                                            <td id="aPossibleMin">???</td>
-                                            <td id="aPossibleMax">???</td>
+                                            <td id="aPossibleMin"></td>
+                                            <td>-</td>
+                                            <td id="aPossibleMax" class="right-align"></td>
+                                            <td class="smaller-text">Different encounter possible stat of the same Pokemon (at the same level but with different IVs and/or natures)</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -181,6 +185,10 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div id="error-container" class="row">
+
             </div>
         </div>
         

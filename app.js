@@ -53,6 +53,8 @@ class Modifier {
     isSTAB = false;
     isCritical = false;
 
+    isGen6Plus = false;
+
     constructor() {}
 
     getSTAB() {
@@ -60,7 +62,10 @@ class Modifier {
     }
 
     getCritical() {
-        return this.isCritical ? 2 : 1;
+        if (this.isCritical) {
+            return this.isGen6Plus ? 1.5 : 2;
+        }
+        return 1;
     }
 
     getTypeEffectiveness() {
@@ -141,6 +146,9 @@ class Inputs {
 
     setGeneration(value) {
         this.generation = value;
+        if (this.generation >= 6) {
+            this.modifier.isGen6Plus = true;
+        }
         return this;
     }
 
@@ -368,7 +376,11 @@ class Calculator {
     }
 
     applyGen2Calculations(range, inputs) {
-        // TODO
+        range.damage = this.applyCriticalTruncate(range.damage, inputs);
+        range.damage = this.addTwo(range.damage);
+        range.damage = this.applySTABTruncate(range.damage, inputs);
+        range.damage = this.applyTypeTruncate(range.damage, inputs);
+        this.applyRandomTruncate(range);
     }
 
     applyGen3Calculations(range, inputs) {
@@ -390,11 +402,17 @@ class Calculator {
     }
 
     applyGen5Calculations(range, inputs) {
-        // TODO
+        range.damage = this.addTwo(range.damage);
+        range.damage = this.applyCriticalGen5OrLater(range.damage, inputs);
+        this.applyRandomRoundHalfDown(range);
+        range.minDamage = this.applySTABRoundHalfDown(range.minDamage, inputs);
+        range.maxDamage = this.applySTABRoundHalfDown(range.maxDamage, inputs);
+        range.minDamage = this.applyTypeRoundHalfDown(range.minDamage, inputs);
+        range.maxDamage = this.applyTypeRoundHalfDown(range.maxDamage, inputs);
     }
 
     applyGen6Calculations(range, inputs) {
-        // TODO
+        this.applyGen5Calculations(range, inputs); // critical value is handled by Modifier class
     }
 
     addTwo(damage) {
@@ -407,9 +425,9 @@ class Calculator {
         return damage;
     }
 
-    applyCriticalGen5(damage, inputs) {
+    applyCriticalGen5OrLater(damage, inputs) {
         damage *= inputs.modifier.getCritical();
-        damage = Math.round(damage);
+        damage = this.roundHalfDown(damage);
         return damage;
     }
 
