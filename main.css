@@ -14,6 +14,9 @@ input, select, th, td {
 .yellow-text {
     color: yellow !important;
 }
+.red-text {
+    color: red !important;
+}
 .smaller-text {
     font-size: 12px !important;
 }

@@ -227,13 +227,13 @@ class Calculator {
 
         let errors = new Validator().validate(inputs);
 
-        // TODO show errors
-
         if (errors.length === 0) {
             this.numberifyInputs(inputs);
             this.calculateStats(inputs);
+            this.clearErrors();
 
         } else {
+            this.showErrors(errors);
             console.log(errors);
         }
     }
@@ -333,6 +333,18 @@ class Calculator {
         document.getElementById('aBaseMax').innerHTML = calculatedStats.aBaseMax;
         document.getElementById('aPossibleMin').innerHTML = calculatedStats.aPossibleMin;
         document.getElementById('aPossibleMax').innerHTML = calculatedStats.aPossibleMax;
+    }
+
+    showErrors(errors) {
+        let errorHtml = '';
+        errors.forEach(error => {
+            errorHtml += '<li>' + error + '</li>';
+        });
+        document.getElementById('error-list').innerHTML = errorHtml;
+    }
+
+    clearErrors() {
+        document.getElementById('error-list').innerHTML = '';
     }
 
     calculateDamage(inputs, testedAValue) {
